@@ -97,7 +97,7 @@ export class DatePickerInnerComponent implements OnInit, OnChanges {
       this.selectedDate = new Date(this.activeDate.valueOf() as number);
       this.update.emit(this.activeDate);
     } else if (this.activeDate === undefined) {
-      this.activeDate = new Date();
+      this.activeDate = this.createDateAsUTC(new Date());
     }
   }
 
@@ -106,6 +106,10 @@ export class DatePickerInnerComponent implements OnInit, OnChanges {
   public ngOnChanges(changes: SimpleChanges): void {
     this.refreshView();
     this.checkIfActiveDateGotUpdated(changes['activeDate']);
+  }
+  
+  private createDateAsUTC(date) {
+    return new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate(), date.getHours(), date.getMinutes(), date.getSeconds()));
   }
 
   // Check if activeDate has been update and then emit the activeDateChange with the new date
@@ -195,6 +199,7 @@ export class DatePickerInnerComponent implements OnInit, OnChanges {
 
   public createDateObject(date: Date, format: string): any {
     let dateObject: any = {};
+    let date = this.createDateAsUTC(date);
     dateObject.date = new Date(date.getFullYear(), date.getMonth(), date.getDate());
     dateObject.label = this.dateFilter(date, format);
     dateObject.selected = this.compare(date, this.selectedDate) === 0;
@@ -226,15 +231,15 @@ export class DatePickerInnerComponent implements OnInit, OnChanges {
   public select(date: Date, isManual: boolean = true): void {
     if (this.datepickerMode === this.minMode) {
       if (!this.activeDate) {
-        this.activeDate = new Date(0, 0, 0, 0, 0, 0, 0);
+        this.activeDate = this.createDateAsUTC(new Date(0, 0, 0, 0, 0, 0, 0));
       }
 
-      this.activeDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+      this.activeDate = this.createDateAsUTC(new Date(date.getFullYear(), date.getMonth(), date.getDate()));
       if (isManual) {
         this.selectionDone.emit(this.activeDate);
       }
     } else {
-      this.activeDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+      this.activeDate = this.createDateAsUTC(new Date(date.getFullYear(), date.getMonth(), date.getDate()));
       if (isManual) {
         this.datepickerMode = this.modes[this.modes.indexOf(this.datepickerMode) - 1];
       }
